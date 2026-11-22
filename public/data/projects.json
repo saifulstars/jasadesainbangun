@@ -7,7 +7,7 @@
     "location": "Tangerang, Banten",
     "area": "140 m²",
     "year": "2024",
-    "image": "/assets/aistudio/Project_Portofolio_page-0007_7e5b8611.jpg",
+    "image": "./assets/aistudio/Project_Portofolio_page-0007_7e5b8611.jpg",
     "summary": "Pembangunan rumah tinggal 2 lantai untuk perorangan dari tahap fondasi hingga serah terima kunci.",
     "role": "Mengelola proyek dan tim dari tahap fondasi hingga penyelesaian akhir, memastikan kualitas bangunan sesuai desain dan kepuasan klien.",
     "scope": [
@@ -25,7 +25,7 @@
     "location": "Kota Tangerang",
     "area": "450 m²",
     "year": "2024",
-    "image": "/assets/aistudio/Project_Portofolio_page-0008_0052feda.jpg",
+    "image": "./assets/aistudio/Project_Portofolio_page-0008_0052feda.jpg",
     "summary": "Renovasi penambahan lantai 3 gedung sekolah mencakup penguatan struktur eksisting dan konstruksi atap baru.",
     "role": "Sebagai subkontraktor pelaksana yang memastikan renovasi berjalan aman tanpa mengganggu operasional sekolah yang sedang berlangsung.",
     "scope": [
@@ -43,7 +43,7 @@
     "location": "Tangerang, Banten",
     "area": "320 m²",
     "year": "2023",
-    "image": "/assets/aistudio/Project_Portofolio_page-0009_6f841e3d.jpg",
+    "image": "./assets/aistudio/Project_Portofolio_page-0009_6f841e3d.jpg",
     "summary": "Pembangunan gedung masjid 2 lantai beserta penataan halaman dan sistem drainase lingkungan.",
     "role": "Pemborong utama yang mengelola seluruh proses dari konstruksi bangunan hingga penyelesaian infrastruktur seperti halaman masjid dan sistem drainase.",
     "scope": [
@@ -61,7 +61,7 @@
     "location": "Tangerang Selatan",
     "area": "130 m²",
     "year": "2023",
-    "image": "/assets/aistudio/Project_Portofolio_page-0010_ae50de89.jpg",
+    "image": "./assets/aistudio/Project_Portofolio_page-0010_ae50de89.jpg",
     "summary": "Pekerjaan renovasi menyeluruh dan peremajaan fasad rumah tinggal 2 lantai untuk perorangan.",
     "role": "Mengelola proyek dan tim mulai dari penguatan struktur hingga penyelesaian akhir agar sesuai dengan desain arsitektur.",
     "scope": [

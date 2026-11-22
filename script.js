@@ -446,10 +446,10 @@
     }
   });
 
-  // Load projects from separate JSON file (/data/projects.json)
+  // Load projects from separate JSON file (./data/projects.json)
   async function loadPortfolioData() {
     try {
-      const response = await fetch('/data/projects.json');
+      const response = await fetch('./data/projects.json');
       if (!response.ok) {
         throw new Error('HTTP ' + response.status);
       }
