@@ -1,0 +1,58 @@
+media:
+  input: public/assets/aistudio
+  output: ./public/assets/aistudio
+
+content:
+  - name: portfolio
+    label: Daftar Portofolio Proyek
+    type: file
+    path: public/data/projects.json
+    fields:
+      - name: projects
+        label: Proyek Portofolio
+        type: object
+        list: true
+        fields:
+          - name: title
+            label: Nama Proyek
+            type: string
+            required: true
+          - name: category
+            label: Kategori
+            type: select
+            options:
+              values:
+                - Bangun Baru
+                - Renovasi
+                - Desain Arsitektur
+                - Interior
+            required: true
+          - name: location
+            label: Lokasi Proyek
+            type: string
+            required: true
+          - name: area
+            label: Luas Bangunan
+            type: string
+            required: true
+          - name: year
+            label: Tahun Pengerjaan
+            type: string
+            required: true
+          - name: image
+            label: Foto Proyek
+            type: image
+            required: true
+          - name: summary
+            label: Ringkasan Proyek
+            type: text
+            required: true
+          - name: role
+            label: Peran Tim
+            type: string
+          - name: scope
+            label: Lingkup Pekerjaan
+            type: text
+          - name: result
+            label: Hasil & Pencapaian
+            type: text
