@@ -14,10 +14,107 @@
  * @property {string} result
  */
 
+/**
+ * Data Portofolio Proyek — Mudah ditambah atau diubah langsung di array ini.
+ * Jalur gambar diawali "./public/assets/aistudio/" untuk GitHub Pages root branch,
+ * dengan fallback otomatis ke "./assets/aistudio/" saat dibuka di preview Vite / AI Studio.
+ * @type {ProjectItem[]}
+ */
+const PROJECTS_DATA = [
+  {
+    id: 'proyek-01',
+    code: 'PROYEK 01',
+    title: 'Pembangunan Rumah Tinggal 2 Lantai',
+    category: 'Bangun Baru',
+    location: 'Tangerang, Banten',
+    area: '140 m²',
+    year: '2024',
+    image: './public/assets/aistudio/Project_Portofolio_page-0007_7e5b8611.jpg',
+    summary:
+      'Pembangunan rumah tinggal 2 lantai untuk perorangan dari tahap fondasi hingga serah terima kunci.',
+    role: 'Mengelola proyek dan tim dari tahap fondasi hingga penyelesaian akhir, memastikan kualitas bangunan sesuai desain dan kepuasan klien.',
+    scope: [
+      'Perencanaan gambar kerja dan visualisasi desain 3D',
+      'Pekerjaan struktur beton bertulang 2 lantai dan atap pelana modern',
+      'Finishing arsitektur, mekanikal elektrikal, dan serah terima kunci',
+    ],
+    result:
+      'Selesai sesuai jadwal dengan feedback positif dari klien terkait efisiensi anggaran dan kualitas bangunan.',
+  },
+  {
+    id: 'proyek-02',
+    code: 'PROYEK 02',
+    title: 'Renovasi Penambahan Lantai 3 SMK PGRI 1 Tangerang',
+    category: 'Renovasi',
+    location: 'Kota Tangerang',
+    area: '450 m²',
+    year: '2024',
+    image: './public/assets/aistudio/Project_Portofolio_page-0008_0052feda.jpg',
+    summary:
+      'Renovasi penambahan lantai 3 gedung sekolah mencakup penguatan struktur eksisting dan konstruksi atap baru.',
+    role: 'Sebagai subkontraktor pelaksana yang memastikan renovasi berjalan aman tanpa mengganggu operasional sekolah yang sedang berlangsung.',
+    scope: [
+      'Audit dan perkuatan struktur kolom serta balok eksisting',
+      'Pembangunan lantai 3 dan modifikasi konstruksi atap',
+      'Pengamanan area kerja agar aktivitas belajar mengajar tetap berjalan lancar',
+    ],
+    result:
+      'Selesai tepat waktu sesuai desain dan standar perbaikan gedung pendidikan yang diinginkan.',
+  },
+  {
+    id: 'proyek-03',
+    code: 'PROYEK 03',
+    title: 'Pembangunan Gedung Masjid & Infrastruktur',
+    category: 'Bangun Baru',
+    location: 'Tangerang, Banten',
+    area: '320 m²',
+    year: '2023',
+    image: './public/assets/aistudio/Project_Portofolio_page-0009_6f841e3d.jpg',
+    summary:
+      'Pembangunan gedung masjid 2 lantai beserta penataan halaman dan sistem drainase lingkungan.',
+    role: 'Pemborong utama yang mengelola seluruh proses dari konstruksi bangunan hingga penyelesaian infrastruktur seperti halaman masjid dan sistem drainase.',
+    scope: [
+      'Konstruksi struktur utama 2 lantai dan pilar interior masjid',
+      'Pekerjaan arsitektur ruang ibadah, krawangan, dan plafon',
+      'Penataan halaman paving block dan sistem drainase menyeluruh',
+    ],
+    result: 'Proyek selesai lebih cepat dari jadwal dengan anggaran yang tepat dan terkendali.',
+  },
+  {
+    id: 'proyek-04',
+    code: 'PROYEK 04',
+    title: 'Renovasi Rumah Tinggal 2 Lantai',
+    category: 'Renovasi',
+    location: 'Tangerang Selatan',
+    area: '130 m²',
+    year: '2023',
+    image: './public/assets/aistudio/Project_Portofolio_page-0010_ae50de89.jpg',
+    summary:
+      'Pekerjaan renovasi menyeluruh dan peremajaan fasad rumah tinggal 2 lantai untuk perorangan.',
+    role: 'Mengelola proyek dan tim mulai dari penguatan struktur hingga penyelesaian akhir agar sesuai dengan desain arsitektur.',
+    scope: [
+      'Penguatan struktur bangunan dan penataan ulang tata ruang dalam',
+      'Peremajaan fasad modern dengan aksen batu alam dan kusen aluminium',
+      'Pengawasan mutu pekerjaan finishing hingga tahap pemeliharaan',
+    ],
+    result:
+      'Selesai dengan feedback positif dari klien terkait efisiensi waktu dan kualitas bangunan.',
+  },
+];
+
 (function () {
   'use strict';
 
   const WHATSAPP_BASE = 'https://wa.me/62811232421?text=';
+
+  /**
+   * Mengubah path "./public/assets/..." menjadi "./assets/..." sebagai fallback preview AI Studio/Vite
+   * @param {string} src
+   * @returns {string}
+   */
+  function getFallbackImageSrc(src) {
+    return src.replace(/^\.\/public\//, './');
+  }
 
   // 1. Tahun hak cipta otomatis di footer
   const yearEl = document.getElementById('current-year');
@@ -156,7 +253,7 @@
     });
   });
 
-  // 6. Dynamic Portfolio (JSON-driven) + Category Filter + Detail Modal
+  // 6. Dynamic Portfolio (Inline PROJECTS_DATA) + Category Filter + Detail Modal
   const filtersContainer = document.getElementById('portfolio-filters');
   const portfolioGrid = document.getElementById('portfolio-grid');
 
@@ -181,12 +278,20 @@
   const modalNext = document.getElementById('modal-next');
   const modalClose = document.getElementById('modal-close');
 
-  /** @type {ProjectItem[]} */
-  let allProjects = [];
+  const allProjects = PROJECTS_DATA;
   /** @type {ProjectItem[]} */
   let filteredProjects = [];
   let activeCategory = 'Semua';
   let currentModalIndex = -1;
+
+  if (modalImg) {
+    modalImg.addEventListener('error', function () {
+      if (!modalImg.dataset.fb && modalImg.dataset.primarySrc) {
+        modalImg.dataset.fb = '1';
+        modalImg.src = getFallbackImageSrc(modalImg.dataset.primarySrc);
+      }
+    });
+  }
 
   function renderFilterTabs() {
     if (!filtersContainer) return;
@@ -266,10 +371,15 @@
       img.loading = 'lazy';
       img.referrerPolicy = 'no-referrer';
       img.className = 'project-img';
-      img.addEventListener('error', function () {
-        media.innerHTML = '';
-        media.appendChild(createFallbackMedia(project.title));
-      });
+      img.onerror = function () {
+        if (!img.dataset.fb) {
+          img.dataset.fb = '1';
+          img.src = getFallbackImageSrc(project.image);
+        } else {
+          media.innerHTML = '';
+          media.appendChild(createFallbackMedia(project.title));
+        }
+      };
       media.appendChild(img);
 
       // Body
@@ -371,6 +481,8 @@
     if (modalResult) modalResult.textContent = project.result;
 
     if (modalImg) {
+      delete modalImg.dataset.fb;
+      modalImg.dataset.primarySrc = project.image;
       modalImg.src = project.image;
       modalImg.alt = project.title + ' — ' + project.location;
     }
@@ -446,30 +558,7 @@
     }
   });
 
-  // Load projects from separate JSON file (./data/projects.json)
-  async function loadPortfolioData() {
-    try {
-      const response = await fetch('./data/projects.json');
-      if (!response.ok) {
-        throw new Error('HTTP ' + response.status);
-      }
-      const data = await response.json();
-      if (!Array.isArray(data)) {
-        throw new Error('Format JSON tidak valid');
-      }
-      allProjects = data;
-      renderFilterTabs();
-      renderPortfolioCards();
-    } catch {
-      if (portfolioGrid) {
-        portfolioGrid.innerHTML = '';
-        const err = document.createElement('p');
-        err.className = 'portfolio-status';
-        err.textContent = 'Gagal memuat data proyek portofolio. Silakan muat ulang halaman.';
-        portfolioGrid.appendChild(err);
-      }
-    }
-  }
-
-  loadPortfolioData();
+  // Render portofolio & filter langsung dari PROJECTS_DATA tanpa fetch()
+  renderFilterTabs();
+  renderPortfolioCards();
 })();
