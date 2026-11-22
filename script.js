@@ -1,7 +1,7 @@
 /**
  * @typedef {Object} ProjectItem
- * @property {string} id
- * @property {string} code
+ * @property {string} [id]
+ * @property {string} [code]
  * @property {string} title
  * @property {string} category
  * @property {string} location
@@ -10,20 +10,18 @@
  * @property {string} image
  * @property {string} summary
  * @property {string} role
- * @property {string[]} scope
+ * @property {string | string[]} scope
  * @property {string} result
  */
 
 /**
- * Data Portofolio Proyek — Mudah ditambah atau diubah langsung di array ini.
- * Jalur gambar diawali "./public/assets/aistudio/" untuk GitHub Pages root branch,
- * dengan fallback otomatis ke "./assets/aistudio/" saat dibuka di preview Vite / AI Studio.
+ * Data cadangan (fallback) apabila kedua file JSON tidak dapat dimuat.
+ * Data utama diambil secara dinamis dari ./public/data/projects.json (atau ./data/projects.json)
+ * agar kompatibel penuh dengan Pages CMS (Git-based CMS).
  * @type {ProjectItem[]}
  */
 const PROJECTS_DATA = [
   {
-    id: 'proyek-01',
-    code: 'PROYEK 01',
     title: 'Pembangunan Rumah Tinggal 2 Lantai',
     category: 'Bangun Baru',
     location: 'Tangerang, Banten',
@@ -33,17 +31,12 @@ const PROJECTS_DATA = [
     summary:
       'Pembangunan rumah tinggal 2 lantai untuk perorangan dari tahap fondasi hingga serah terima kunci.',
     role: 'Mengelola proyek dan tim dari tahap fondasi hingga penyelesaian akhir, memastikan kualitas bangunan sesuai desain dan kepuasan klien.',
-    scope: [
-      'Perencanaan gambar kerja dan visualisasi desain 3D',
-      'Pekerjaan struktur beton bertulang 2 lantai dan atap pelana modern',
-      'Finishing arsitektur, mekanikal elektrikal, dan serah terima kunci',
-    ],
+    scope:
+      'Perencanaan gambar kerja & 3D, Struktur beton bertulang 2 lantai, Atap pelana modern, Finishing arsitektur & MEP',
     result:
       'Selesai sesuai jadwal dengan feedback positif dari klien terkait efisiensi anggaran dan kualitas bangunan.',
   },
   {
-    id: 'proyek-02',
-    code: 'PROYEK 02',
     title: 'Renovasi Penambahan Lantai 3 SMK PGRI 1 Tangerang',
     category: 'Renovasi',
     location: 'Kota Tangerang',
@@ -53,17 +46,12 @@ const PROJECTS_DATA = [
     summary:
       'Renovasi penambahan lantai 3 gedung sekolah mencakup penguatan struktur eksisting dan konstruksi atap baru.',
     role: 'Sebagai subkontraktor pelaksana yang memastikan renovasi berjalan aman tanpa mengganggu operasional sekolah yang sedang berlangsung.',
-    scope: [
-      'Audit dan perkuatan struktur kolom serta balok eksisting',
-      'Pembangunan lantai 3 dan modifikasi konstruksi atap',
-      'Pengamanan area kerja agar aktivitas belajar mengajar tetap berjalan lancar',
-    ],
+    scope:
+      'Audit & perkuatan struktur eksisting, Pembangunan lantai 3, Modifikasi konstruksi atap, Pengamanan area kerja sekolah',
     result:
       'Selesai tepat waktu sesuai desain dan standar perbaikan gedung pendidikan yang diinginkan.',
   },
   {
-    id: 'proyek-03',
-    code: 'PROYEK 03',
     title: 'Pembangunan Gedung Masjid & Infrastruktur',
     category: 'Bangun Baru',
     location: 'Tangerang, Banten',
@@ -73,16 +61,11 @@ const PROJECTS_DATA = [
     summary:
       'Pembangunan gedung masjid 2 lantai beserta penataan halaman dan sistem drainase lingkungan.',
     role: 'Pemborong utama yang mengelola seluruh proses dari konstruksi bangunan hingga penyelesaian infrastruktur seperti halaman masjid dan sistem drainase.',
-    scope: [
-      'Konstruksi struktur utama 2 lantai dan pilar interior masjid',
-      'Pekerjaan arsitektur ruang ibadah, krawangan, dan plafon',
-      'Penataan halaman paving block dan sistem drainase menyeluruh',
-    ],
+    scope:
+      'Struktur utama 2 lantai & pilar interior, Arsitektur ruang ibadah & plafon, Penataan halaman paving block, Sistem drainase lingkungan',
     result: 'Proyek selesai lebih cepat dari jadwal dengan anggaran yang tepat dan terkendali.',
   },
   {
-    id: 'proyek-04',
-    code: 'PROYEK 04',
     title: 'Renovasi Rumah Tinggal 2 Lantai',
     category: 'Renovasi',
     location: 'Tangerang Selatan',
@@ -92,11 +75,8 @@ const PROJECTS_DATA = [
     summary:
       'Pekerjaan renovasi menyeluruh dan peremajaan fasad rumah tinggal 2 lantai untuk perorangan.',
     role: 'Mengelola proyek dan tim mulai dari penguatan struktur hingga penyelesaian akhir agar sesuai dengan desain arsitektur.',
-    scope: [
-      'Penguatan struktur bangunan dan penataan ulang tata ruang dalam',
-      'Peremajaan fasad modern dengan aksen batu alam dan kusen aluminium',
-      'Pengawasan mutu pekerjaan finishing hingga tahap pemeliharaan',
-    ],
+    scope:
+      'Penguatan struktur bangunan, Penataan ulang ruang dalam, Peremajaan fasad batu alam & kusen aluminium, Finishing & pemeliharaan',
     result:
       'Selesai dengan feedback positif dari klien terkait efisiensi waktu dan kualitas bangunan.',
   },
@@ -108,12 +88,67 @@ const PROJECTS_DATA = [
   const WHATSAPP_BASE = 'https://wa.me/62811232421?text=';
 
   /**
-   * Mengubah path "./public/assets/..." menjadi "./assets/..." sebagai fallback preview AI Studio/Vite
-   * @param {string} src
+   * Menormalkan jalur gambar dari Pages CMS (baik "public/...", "/public/...",
+   * "./public/...", maupun "./assets/...") agar selalu terbaca di GitHub Pages
+   * maupun preview Vite/AI Studio.
+   * @param {string} rawPath
+   * @returns {string[]}
+   */
+  function resolveImageCandidates(rawPath) {
+    const trimmed = (rawPath || '').trim();
+    if (!trimmed) return [];
+
+    if (/^(?:https?:|data:|blob:)/i.test(trimmed)) {
+      return [trimmed];
+    }
+
+    const clean = trimmed.replace(/^(?:\.\/|\/)+/, '');
+    if (clean.startsWith('public/')) {
+      const primary = './' + clean;
+      const fallback = './' + clean.replace(/^public\//, '');
+      return primary === fallback ? [primary] : [primary, fallback];
+    }
+
+    const primary = './public/' + clean;
+    const fallback = './' + clean;
+    return [primary, fallback];
+  }
+
+  /**
+   * Memecah field scope (baik string dipisah koma/baris baru maupun array) menjadi daftar rapi.
+   * @param {string | string[] | undefined} scopeValue
+   * @returns {string[]}
+   */
+  function normalizeScope(scopeValue) {
+    if (Array.isArray(scopeValue)) {
+      return scopeValue
+        .map(function (item) {
+          return String(item || '').trim();
+        })
+        .filter(Boolean);
+    }
+    if (typeof scopeValue === 'string') {
+      return scopeValue
+        .split(/[\n,;]+/)
+        .map(function (item) {
+          return item.trim();
+        })
+        .filter(Boolean);
+    }
+    return [];
+  }
+
+  /**
+   * Memastikan setiap item proyek memiliki kode nomor yang konsisten.
+   * @param {ProjectItem} project
+   * @param {number} index
    * @returns {string}
    */
-  function getFallbackImageSrc(src) {
-    return src.replace(/^\.\/public\//, './');
+  function getProjectCode(project, index) {
+    if (project.code && project.code.trim()) {
+      return project.code.trim();
+    }
+    return 'PROYEK ' + String(index + 1).padStart(2, '0');
   }
 
   // 1. Tahun hak cipta otomatis di footer
@@ -253,7 +288,7 @@ const PROJECTS_DATA = [
     });
   });
 
-  // 6. Dynamic Portfolio (Inline PROJECTS_DATA) + Category Filter + Detail Modal
+  // 6. Dynamic Portfolio (Pages CMS JSON + Dual Fallback) + Filter + Detail Modal
   const filtersContainer = document.getElementById('portfolio-filters');
   const portfolioGrid = document.getElementById('portfolio-grid');
 
@@ -278,17 +313,21 @@ const PROJECTS_DATA = [
   const modalNext = document.getElementById('modal-next');
   const modalClose = document.getElementById('modal-close');
 
-  const allProjects = PROJECTS_DATA;
+  /** @type {ProjectItem[]} */
+  let allProjects = [];
   /** @type {ProjectItem[]} */
   let filteredProjects = [];
   let activeCategory = 'Semua';
   let currentModalIndex = -1;
+  /** @type {string[]} */
+  let currentModalImgCandidates = [];
+  let currentModalImgAttempt = 0;
 
   if (modalImg) {
     modalImg.addEventListener('error', function () {
-      if (!modalImg.dataset.fb && modalImg.dataset.primarySrc) {
-        modalImg.dataset.fb = '1';
-        modalImg.src = getFallbackImageSrc(modalImg.dataset.primarySrc);
+      currentModalImgAttempt += 1;
+      if (currentModalImgAttempt < currentModalImgCandidates.length) {
+        modalImg.src = currentModalImgCandidates[currentModalImgAttempt];
       }
     });
   }
@@ -365,22 +404,29 @@ const PROJECTS_DATA = [
       const media = document.createElement('div');
       media.className = 'project-media';
 
-      const img = document.createElement('img');
-      img.src = project.image;
-      img.alt = project.title + ' — ' + project.location;
-      img.loading = 'lazy';
-      img.referrerPolicy = 'no-referrer';
-      img.className = 'project-img';
-      img.onerror = function () {
-        if (!img.dataset.fb) {
-          img.dataset.fb = '1';
-          img.src = getFallbackImageSrc(project.image);
-        } else {
-          media.innerHTML = '';
-          media.appendChild(createFallbackMedia(project.title));
-        }
-      };
-      media.appendChild(img);
+      const imgCandidates = resolveImageCandidates(project.image);
+      let imgAttempt = 0;
+
+      if (imgCandidates.length > 0) {
+        const img = document.createElement('img');
+        img.src = imgCandidates[0];
+        img.alt = project.title + (project.location ? ' — ' + project.location : '');
+        img.loading = 'lazy';
+        img.referrerPolicy = 'no-referrer';
+        img.className = 'project-img';
+        img.onerror = function () {
+          imgAttempt += 1;
+          if (imgAttempt < imgCandidates.length) {
+            img.src = imgCandidates[imgAttempt];
+          } else {
+            media.innerHTML = '';
+            media.appendChild(createFallbackMedia(project.title));
+          }
+        };
+        media.appendChild(img);
+      } else {
+        media.appendChild(createFallbackMedia(project.title));
+      }
 
       // Body
       const body = document.createElement('div');
@@ -392,7 +438,7 @@ const PROJECTS_DATA = [
 
       const catSpan = document.createElement('span');
       catSpan.className = 'project-meta-cat';
-      catSpan.textContent = project.category;
+      catSpan.textContent = project.category || 'Proyek';
 
       const sep1 = document.createElement('span');
       sep1.setAttribute('aria-hidden', 'true');
@@ -400,11 +446,13 @@ const PROJECTS_DATA = [
 
       const yearSpan = document.createElement('span');
       yearSpan.className = 'tabular-nums';
-      yearSpan.textContent = project.year;
+      yearSpan.textContent = project.year || '';
 
       metaLine.appendChild(catSpan);
-      metaLine.appendChild(sep1);
-      metaLine.appendChild(yearSpan);
+      if (project.year) {
+        metaLine.appendChild(sep1);
+        metaLine.appendChild(yearSpan);
+      }
 
       // Title
       const titleEl = document.createElement('h3');
@@ -414,7 +462,7 @@ const PROJECTS_DATA = [
       // Summary
       const summaryEl = document.createElement('p');
       summaryEl.className = 'project-summary';
-      summaryEl.textContent = project.summary;
+      summaryEl.textContent = project.summary || '';
 
       // Bottom specs row: location + building area + detail affordance
       const specsRow = document.createElement('div');
@@ -424,7 +472,7 @@ const PROJECTS_DATA = [
       specsGroup.className = 'project-specs-group';
 
       const locSpan = document.createElement('span');
-      locSpan.textContent = project.location;
+      locSpan.textContent = project.location || '';
 
       const sep2 = document.createElement('span');
       sep2.setAttribute('aria-hidden', 'true');
@@ -432,11 +480,11 @@ const PROJECTS_DATA = [
 
       const areaSpan = document.createElement('span');
       areaSpan.className = 'project-area';
-      areaSpan.textContent = project.area;
+      areaSpan.textContent = project.area || '';
 
-      specsGroup.appendChild(locSpan);
-      specsGroup.appendChild(sep2);
-      specsGroup.appendChild(areaSpan);
+      if (project.location) specsGroup.appendChild(locSpan);
+      if (project.location && project.area) specsGroup.appendChild(sep2);
+      if (project.area) specsGroup.appendChild(areaSpan);
 
       const hint = document.createElement('span');
       hint.className = 'project-cta-hint';
@@ -468,28 +516,29 @@ const PROJECTS_DATA = [
     const total = filteredProjects.length;
     currentModalIndex = ((index % total) + total) % total;
     const project = filteredProjects[currentModalIndex];
+    const globalIdx = allProjects.indexOf(project);
 
-    if (modalCode) modalCode.textContent = project.code;
-    if (modalCategory) modalCategory.textContent = project.category;
-    if (modalCategoryVal) modalCategoryVal.textContent = project.category;
-    if (modalTitle) modalTitle.textContent = project.title;
-    if (modalLocation) modalLocation.textContent = project.location;
-    if (modalArea) modalArea.textContent = project.area;
-    if (modalYear) modalYear.textContent = project.year;
-    if (modalSummary) modalSummary.textContent = project.summary;
-    if (modalRole) modalRole.textContent = project.role;
-    if (modalResult) modalResult.textContent = project.result;
+    if (modalCode) modalCode.textContent = getProjectCode(project, globalIdx >= 0 ? globalIdx : currentModalIndex);
+    if (modalCategory) modalCategory.textContent = project.category || '';
+    if (modalCategoryVal) modalCategoryVal.textContent = project.category || '-';
+    if (modalTitle) modalTitle.textContent = project.title || '';
+    if (modalLocation) modalLocation.textContent = project.location || '-';
+    if (modalArea) modalArea.textContent = project.area || '-';
+    if (modalYear) modalYear.textContent = project.year || '-';
+    if (modalSummary) modalSummary.textContent = project.summary || '-';
+    if (modalRole) modalRole.textContent = project.role || '-';
+    if (modalResult) modalResult.textContent = project.result || '-';
 
     if (modalImg) {
-      delete modalImg.dataset.fb;
-      modalImg.dataset.primarySrc = project.image;
-      modalImg.src = project.image;
-      modalImg.alt = project.title + ' — ' + project.location;
+      currentModalImgCandidates = resolveImageCandidates(project.image);
+      currentModalImgAttempt = 0;
+      modalImg.src = currentModalImgCandidates[0] || '';
+      modalImg.alt = project.title + (project.location ? ' — ' + project.location : '');
     }
 
     if (modalScope) {
       modalScope.innerHTML = '';
-      (project.scope || []).forEach(function (item) {
+      normalizeScope(project.scope).forEach(function (item) {
         const li = document.createElement('li');
         li.textContent = item;
         modalScope.appendChild(li);
@@ -500,9 +549,9 @@ const PROJECTS_DATA = [
       const waMsg =
         'Halo Saiful - Edo Design & Build, saya tertarik berkonsultasi mengenai proyek serupa "' +
         project.title +
-        '" (' +
-        project.area +
-        ').';
+        '"' +
+        (project.area ? ' (' + project.area + ')' : '') +
+        '.';
       modalWaLink.href = WHATSAPP_BASE + encodeURIComponent(waMsg);
     }
 
@@ -558,7 +607,40 @@ const PROJECTS_DATA = [
     }
   });
 
-  // Render portofolio & filter langsung dari PROJECTS_DATA tanpa fetch()
-  renderFilterTabs();
-  renderPortfolioCards();
+  /**
+   * Mengambil array proyek dari struktur Pages CMS ({ projects: [...] }) atau array langsung.
+   * @param {string} url
+   * @returns {Promise<ProjectItem[] | null>}
+   */
+  async function fetchProjectsFrom(url) {
+    try {
+      const response = await fetch(url, { cache: 'no-store' });
+      if (!response.ok) return null;
+      const payload = await response.json();
+      if (Array.isArray(payload)) return payload;
+      if (payload && Array.isArray(payload.projects)) return payload.projects;
+      return null;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Urutan pemuatan data:
+   * 1. ./public/data/projects.json (GitHub Pages root branch / Pages CMS)
+   * 2. ./data/projects.json (Vite build / preview AI Studio)
+   * 3. PROJECTS_DATA (cadangan bawaan di script.js)
+   */
+  async function loadPortfolioData() {
+    let loaded = await fetchProjectsFrom('./public/data/projects.json');
+    if (!loaded) {
+      loaded = await fetchProjectsFrom('./data/projects.json');
+    }
+
+    allProjects = loaded && loaded.length > 0 ? loaded : PROJECTS_DATA.slice();
+    renderFilterTabs();
+    renderPortfolioCards();
+  }
+
+  loadPortfolioData();
 })();
