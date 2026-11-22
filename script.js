@@ -1,5 +1,23 @@
+/**
+ * @typedef {Object} ProjectItem
+ * @property {string} id
+ * @property {string} code
+ * @property {string} title
+ * @property {string} category
+ * @property {string} location
+ * @property {string} area
+ * @property {string} year
+ * @property {string} image
+ * @property {string} summary
+ * @property {string} role
+ * @property {string[]} scope
+ * @property {string} result
+ */
+
 (function () {
   'use strict';
+
+  const WHATSAPP_BASE = 'https://wa.me/62811232421?text=';
 
   // 1. Tahun hak cipta otomatis di footer
   const yearEl = document.getElementById('current-year');
@@ -57,7 +75,7 @@
       const sectionHeight = el.offsetHeight;
       if (scrollY >= sectionTop && scrollY < sectionTop + sectionHeight) {
         const id = el.getAttribute('id') || 'home';
-        currentId = id === 'testimonials' ? 'portfolio' : id;
+        currentId = id === 'testimonials' ? 'about' : id;
       }
     });
 
@@ -96,7 +114,7 @@
     }, 3000);
   }
 
-  // 5. Copy to Clipboard Buttons (with fallback for iframes)
+  // 5. Copy to Clipboard Buttons
   /**
    * @param {string} text
    * @param {string} label
@@ -138,158 +156,320 @@
     });
   });
 
-  // 6. Lightbox Modal with Prev / Next Navigation & Keyboard Support
-  const lightboxModal = document.getElementById('lightbox-modal');
-  const lightboxDialog = document.getElementById('lightbox-dialog');
-  const lightboxImg = /** @type {HTMLImageElement | null} */ (
-    document.getElementById('lightbox-img')
-  );
-  const lightboxCaption = document.getElementById('lightbox-caption');
-  const lightboxCounter = document.getElementById('lightbox-counter');
-  const lightboxPrev = document.getElementById('lightbox-prev');
-  const lightboxNext = document.getElementById('lightbox-next');
-  const lightboxClose = document.getElementById('lightbox-close');
-  const projectButtons = Array.from(document.querySelectorAll('.project-media-btn'));
+  // 6. Dynamic Portfolio (JSON-driven) + Category Filter + Detail Modal
+  const filtersContainer = document.getElementById('portfolio-filters');
+  const portfolioGrid = document.getElementById('portfolio-grid');
 
-  let currentLightboxIndex = -1;
+  const modalBackdrop = document.getElementById('project-modal');
+  const modalDialog = document.getElementById('project-modal-dialog');
+  const modalCode = document.getElementById('modal-code');
+  const modalCategory = document.getElementById('modal-category');
+  const modalCategoryVal = document.getElementById('modal-category-val');
+  const modalTitle = document.getElementById('modal-title');
+  const modalImg = /** @type {HTMLImageElement | null} */ (document.getElementById('modal-img'));
+  const modalLocation = document.getElementById('modal-location');
+  const modalArea = document.getElementById('modal-area');
+  const modalYear = document.getElementById('modal-year');
+  const modalSummary = document.getElementById('modal-summary');
+  const modalRole = document.getElementById('modal-role');
+  const modalScope = document.getElementById('modal-scope');
+  const modalResult = document.getElementById('modal-result');
+  const modalWaLink = /** @type {HTMLAnchorElement | null} */ (
+    document.getElementById('modal-wa-link')
+  );
+  const modalPrev = document.getElementById('modal-prev');
+  const modalNext = document.getElementById('modal-next');
+  const modalClose = document.getElementById('modal-close');
+
+  /** @type {ProjectItem[]} */
+  let allProjects = [];
+  /** @type {ProjectItem[]} */
+  let filteredProjects = [];
+  let activeCategory = 'Semua';
+  let currentModalIndex = -1;
+
+  function renderFilterTabs() {
+    if (!filtersContainer) return;
+    filtersContainer.innerHTML = '';
+
+    const categories = ['Semua'];
+    allProjects.forEach(function (project) {
+      if (project.category && !categories.includes(project.category)) {
+        categories.push(project.category);
+      }
+    });
+
+    categories.forEach(function (category) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.setAttribute('role', 'tab');
+      btn.setAttribute('aria-selected', category === activeCategory ? 'true' : 'false');
+      btn.className = 'filter-tab' + (category === activeCategory ? ' is-active' : '');
+      btn.textContent = category;
+
+      btn.addEventListener('click', function () {
+        if (activeCategory === category) return;
+        activeCategory = category;
+        renderFilterTabs();
+        renderPortfolioCards();
+      });
+
+      filtersContainer.appendChild(btn);
+    });
+  }
+
+  /** @param {string} title */
+  function createFallbackMedia(title) {
+    const fallback = document.createElement('div');
+    fallback.className = 'project-img-fallback';
+    const icon = document.createElement('i');
+    icon.className = 'fa-regular fa-building';
+    const label = document.createElement('span');
+    label.textContent = title;
+    fallback.appendChild(icon);
+    fallback.appendChild(label);
+    return fallback;
+  }
+
+  function renderPortfolioCards() {
+    if (!portfolioGrid) return;
+    portfolioGrid.innerHTML = '';
+
+    filteredProjects =
+      activeCategory === 'Semua'
+        ? allProjects.slice()
+        : allProjects.filter(function (p) {
+            return p.category === activeCategory;
+          });
+
+    if (filteredProjects.length === 0) {
+      const empty = document.createElement('p');
+      empty.className = 'portfolio-status';
+      empty.textContent = 'Belum ada proyek pada kategori "' + activeCategory + '".';
+      portfolioGrid.appendChild(empty);
+      return;
+    }
+
+    filteredProjects.forEach(function (project, index) {
+      const cardBtn = document.createElement('button');
+      cardBtn.type = 'button';
+      cardBtn.className = 'project-card';
+      cardBtn.setAttribute('aria-label', 'Lihat detail proyek ' + project.title);
+
+      // Media wrapper
+      const media = document.createElement('div');
+      media.className = 'project-media';
+
+      const img = document.createElement('img');
+      img.src = project.image;
+      img.alt = project.title + ' — ' + project.location;
+      img.loading = 'lazy';
+      img.referrerPolicy = 'no-referrer';
+      img.className = 'project-img';
+      img.addEventListener('error', function () {
+        media.innerHTML = '';
+        media.appendChild(createFallbackMedia(project.title));
+      });
+      media.appendChild(img);
+
+      // Body
+      const body = document.createElement('div');
+      body.className = 'project-body';
+
+      // Clean unboxed metadata line
+      const metaLine = document.createElement('div');
+      metaLine.className = 'project-meta-line';
+
+      const catSpan = document.createElement('span');
+      catSpan.className = 'project-meta-cat';
+      catSpan.textContent = project.category;
+
+      const sep1 = document.createElement('span');
+      sep1.setAttribute('aria-hidden', 'true');
+      sep1.textContent = '·';
+
+      const yearSpan = document.createElement('span');
+      yearSpan.className = 'tabular-nums';
+      yearSpan.textContent = project.year;
+
+      metaLine.appendChild(catSpan);
+      metaLine.appendChild(sep1);
+      metaLine.appendChild(yearSpan);
+
+      // Title
+      const titleEl = document.createElement('h3');
+      titleEl.className = 'project-title';
+      titleEl.textContent = project.title;
+
+      // Summary
+      const summaryEl = document.createElement('p');
+      summaryEl.className = 'project-summary';
+      summaryEl.textContent = project.summary;
+
+      // Bottom specs row: location + building area + detail affordance
+      const specsRow = document.createElement('div');
+      specsRow.className = 'project-specs-inline';
+
+      const specsGroup = document.createElement('div');
+      specsGroup.className = 'project-specs-group';
+
+      const locSpan = document.createElement('span');
+      locSpan.textContent = project.location;
+
+      const sep2 = document.createElement('span');
+      sep2.setAttribute('aria-hidden', 'true');
+      sep2.textContent = '·';
+
+      const areaSpan = document.createElement('span');
+      areaSpan.className = 'project-area';
+      areaSpan.textContent = project.area;
+
+      specsGroup.appendChild(locSpan);
+      specsGroup.appendChild(sep2);
+      specsGroup.appendChild(areaSpan);
+
+      const hint = document.createElement('span');
+      hint.className = 'project-cta-hint';
+      hint.innerHTML = 'Detail <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>';
+
+      specsRow.appendChild(specsGroup);
+      specsRow.appendChild(hint);
+
+      body.appendChild(metaLine);
+      body.appendChild(titleEl);
+      body.appendChild(summaryEl);
+      body.appendChild(specsRow);
+
+      cardBtn.appendChild(media);
+      cardBtn.appendChild(body);
+
+      cardBtn.addEventListener('click', function () {
+        openProjectModal(index);
+      });
+
+      portfolioGrid.appendChild(cardBtn);
+    });
+  }
 
   /** @param {number} index */
-  function openLightboxAt(index) {
-    if (!lightboxModal || !lightboxImg || !lightboxCaption) return;
-    const total = projectButtons.length;
-    if (total === 0) return;
+  function openProjectModal(index) {
+    if (!modalBackdrop || filteredProjects.length === 0) return;
 
-    currentLightboxIndex = ((index % total) + total) % total;
-    const targetBtn = projectButtons[currentLightboxIndex];
-    const imgEl = /** @type {HTMLImageElement | null} */ (targetBtn.querySelector('img'));
-    const caption = targetBtn.getAttribute('data-caption') || 'Dokumentasi Proyek';
+    const total = filteredProjects.length;
+    currentModalIndex = ((index % total) + total) % total;
+    const project = filteredProjects[currentModalIndex];
 
-    if (imgEl) {
-      lightboxImg.src = imgEl.src;
-      lightboxImg.alt = caption;
+    if (modalCode) modalCode.textContent = project.code;
+    if (modalCategory) modalCategory.textContent = project.category;
+    if (modalCategoryVal) modalCategoryVal.textContent = project.category;
+    if (modalTitle) modalTitle.textContent = project.title;
+    if (modalLocation) modalLocation.textContent = project.location;
+    if (modalArea) modalArea.textContent = project.area;
+    if (modalYear) modalYear.textContent = project.year;
+    if (modalSummary) modalSummary.textContent = project.summary;
+    if (modalRole) modalRole.textContent = project.role;
+    if (modalResult) modalResult.textContent = project.result;
+
+    if (modalImg) {
+      modalImg.src = project.image;
+      modalImg.alt = project.title + ' — ' + project.location;
     }
-    lightboxCaption.textContent = caption;
 
-    if (lightboxCounter) {
-      lightboxCounter.textContent = currentLightboxIndex + 1 + ' / ' + total;
+    if (modalScope) {
+      modalScope.innerHTML = '';
+      (project.scope || []).forEach(function (item) {
+        const li = document.createElement('li');
+        li.textContent = item;
+        modalScope.appendChild(li);
+      });
     }
 
-    lightboxModal.classList.remove('is-hidden');
+    if (modalWaLink) {
+      const waMsg =
+        'Halo Saiful - Edo Design & Build, saya tertarik berkonsultasi mengenai proyek serupa "' +
+        project.title +
+        '" (' +
+        project.area +
+        ').';
+      modalWaLink.href = WHATSAPP_BASE + encodeURIComponent(waMsg);
+    }
+
+    const showNav = total > 1;
+    if (modalPrev) modalPrev.classList.toggle('is-hidden', !showNav);
+    if (modalNext) modalNext.classList.toggle('is-hidden', !showNav);
+
+    modalBackdrop.classList.remove('is-hidden');
     document.body.style.overflow = 'hidden';
   }
 
-  function closeLightbox() {
-    if (!lightboxModal) return;
-    lightboxModal.classList.add('is-hidden');
+  function closeProjectModal() {
+    if (!modalBackdrop) return;
+    modalBackdrop.classList.add('is-hidden');
     document.body.style.overflow = '';
-    currentLightboxIndex = -1;
+    currentModalIndex = -1;
   }
 
-  projectButtons.forEach(function (btn, idx) {
-    btn.addEventListener('click', function () {
-      openLightboxAt(idx);
-    });
-  });
-
-  if (lightboxPrev) {
-    lightboxPrev.addEventListener('click', function () {
-      if (currentLightboxIndex !== -1) {
-        openLightboxAt(currentLightboxIndex - 1);
-      }
+  if (modalPrev) {
+    modalPrev.addEventListener('click', function () {
+      if (currentModalIndex !== -1) openProjectModal(currentModalIndex - 1);
     });
   }
 
-  if (lightboxNext) {
-    lightboxNext.addEventListener('click', function () {
-      if (currentLightboxIndex !== -1) {
-        openLightboxAt(currentLightboxIndex + 1);
-      }
+  if (modalNext) {
+    modalNext.addEventListener('click', function () {
+      if (currentModalIndex !== -1) openProjectModal(currentModalIndex + 1);
     });
   }
 
-  if (lightboxClose) {
-    lightboxClose.addEventListener('click', closeLightbox);
+  if (modalClose) {
+    modalClose.addEventListener('click', closeProjectModal);
   }
 
-  if (lightboxModal) {
-    lightboxModal.addEventListener('click', closeLightbox);
+  if (modalBackdrop) {
+    modalBackdrop.addEventListener('click', closeProjectModal);
   }
 
-  if (lightboxDialog) {
-    lightboxDialog.addEventListener('click', function (e) {
+  if (modalDialog) {
+    modalDialog.addEventListener('click', function (e) {
       e.stopPropagation();
     });
   }
 
   document.addEventListener('keydown', function (e) {
-    if (currentLightboxIndex === -1) return;
+    if (currentModalIndex === -1) return;
     if (e.key === 'Escape') {
-      closeLightbox();
+      closeProjectModal();
     } else if (e.key === 'ArrowLeft') {
-      openLightboxAt(currentLightboxIndex - 1);
+      openProjectModal(currentModalIndex - 1);
     } else if (e.key === 'ArrowRight') {
-      openLightboxAt(currentLightboxIndex + 1);
+      openProjectModal(currentModalIndex + 1);
     }
   });
 
-  // 7. Pemilih 4 Foto Proyek (.jpg) untuk Pratinjau Langsung di Browser
-  const multiPhotoBtn = document.getElementById('multi-photo-btn');
-  const multiPhotoInput = /** @type {HTMLInputElement | null} */ (
-    document.getElementById('multi-photo-input')
-  );
-  const photoBtnLabel = document.getElementById('photo-btn-label');
-
-  if (multiPhotoBtn && multiPhotoInput) {
-    multiPhotoBtn.addEventListener('click', function () {
-      multiPhotoInput.click();
-    });
-
-    multiPhotoInput.addEventListener('change', function () {
-      const files = Array.from(multiPhotoInput.files || []);
-      if (files.length === 0) return;
-
-      const projectTargets = [
-        { id: 'img-proyek-01', keys: ['0007', '1000720682'] },
-        { id: 'img-proyek-02', keys: ['0008', '1000720681'] },
-        { id: 'img-proyek-03', keys: ['0009', '1000720683'] },
-        { id: 'img-proyek-04', keys: ['0010', '1000720685'] },
-      ];
-
-      let fallbackIdx = 0;
-
-      files.forEach(function (file) {
-        const reader = new FileReader();
-        reader.onload = function (ev) {
-          const dataUrl = ev.target && typeof ev.target.result === 'string' ? ev.target.result : '';
-          if (!dataUrl) return;
-
-          let matched = projectTargets.find(function (target) {
-            return target.keys.some(function (key) {
-              return file.name.includes(key);
-            });
-          });
-
-          if (!matched && fallbackIdx < projectTargets.length) {
-            matched = projectTargets[fallbackIdx++];
-          }
-
-          if (matched) {
-            const imgEl = /** @type {HTMLImageElement | null} */ (
-              document.getElementById(matched.id)
-            );
-            if (imgEl) {
-              imgEl.src = dataUrl;
-            }
-          }
-        };
-        reader.readAsDataURL(file);
-      });
-
-      if (photoBtnLabel) {
-        photoBtnLabel.textContent = files.length + ' Foto Proyek Dimuat';
+  // Load projects from separate JSON file (/data/projects.json)
+  async function loadPortfolioData() {
+    try {
+      const response = await fetch('/data/projects.json');
+      if (!response.ok) {
+        throw new Error('HTTP ' + response.status);
       }
-      showToast('Foto proyek asli berhasil ditampilkan');
-      multiPhotoInput.value = '';
-    });
+      const data = await response.json();
+      if (!Array.isArray(data)) {
+        throw new Error('Format JSON tidak valid');
+      }
+      allProjects = data;
+      renderFilterTabs();
+      renderPortfolioCards();
+    } catch {
+      if (portfolioGrid) {
+        portfolioGrid.innerHTML = '';
+        const err = document.createElement('p');
+        err.className = 'portfolio-status';
+        err.textContent = 'Gagal memuat data proyek portofolio. Silakan muat ulang halaman.';
+        portfolioGrid.appendChild(err);
+      }
+    }
   }
+
+  loadPortfolioData();
 })();

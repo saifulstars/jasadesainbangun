@@ -1,0 +1,74 @@
+[
+  {
+    "id": "proyek-01",
+    "code": "PROYEK 01",
+    "title": "Pembangunan Rumah Tinggal 2 Lantai",
+    "category": "Bangun Baru",
+    "location": "Tangerang, Banten",
+    "area": "140 m²",
+    "year": "2024",
+    "image": "/assets/aistudio/Project_Portofolio_page-0007_7e5b8611.jpg",
+    "summary": "Pembangunan rumah tinggal 2 lantai untuk perorangan dari tahap fondasi hingga serah terima kunci.",
+    "role": "Mengelola proyek dan tim dari tahap fondasi hingga penyelesaian akhir, memastikan kualitas bangunan sesuai desain dan kepuasan klien.",
+    "scope": [
+      "Perencanaan gambar kerja dan visualisasi desain 3D",
+      "Pekerjaan struktur beton bertulang 2 lantai dan atap pelana modern",
+      "Finishing arsitektur, mekanikal elektrikal, dan serah terima kunci"
+    ],
+    "result": "Selesai sesuai jadwal dengan feedback positif dari klien terkait efisiensi anggaran dan kualitas bangunan."
+  },
+  {
+    "id": "proyek-02",
+    "code": "PROYEK 02",
+    "title": "Renovasi Penambahan Lantai 3 SMK PGRI 1 Tangerang",
+    "category": "Renovasi",
+    "location": "Kota Tangerang",
+    "area": "450 m²",
+    "year": "2024",
+    "image": "/assets/aistudio/Project_Portofolio_page-0008_0052feda.jpg",
+    "summary": "Renovasi penambahan lantai 3 gedung sekolah mencakup penguatan struktur eksisting dan konstruksi atap baru.",
+    "role": "Sebagai subkontraktor pelaksana yang memastikan renovasi berjalan aman tanpa mengganggu operasional sekolah yang sedang berlangsung.",
+    "scope": [
+      "Audit dan perkuatan struktur kolom serta balok eksisting",
+      "Pembangunan lantai 3 dan modifikasi konstruksi atap",
+      "Pengamanan area kerja agar aktivitas belajar mengajar tetap berjalan lancar"
+    ],
+    "result": "Selesai tepat waktu sesuai desain dan standar perbaikan gedung pendidikan yang diinginkan."
+  },
+  {
+    "id": "proyek-03",
+    "code": "PROYEK 03",
+    "title": "Pembangunan Gedung Masjid & Infrastruktur",
+    "category": "Bangun Baru",
+    "location": "Tangerang, Banten",
+    "area": "320 m²",
+    "year": "2023",
+    "image": "/assets/aistudio/Project_Portofolio_page-0009_6f841e3d.jpg",
+    "summary": "Pembangunan gedung masjid 2 lantai beserta penataan halaman dan sistem drainase lingkungan.",
+    "role": "Pemborong utama yang mengelola seluruh proses dari konstruksi bangunan hingga penyelesaian infrastruktur seperti halaman masjid dan sistem drainase.",
+    "scope": [
+      "Konstruksi struktur utama 2 lantai dan pilar interior masjid",
+      "Pekerjaan arsitektur ruang ibadah, krawangan, dan plafon",
+      "Penataan halaman paving block dan sistem drainase menyeluruh"
+    ],
+    "result": "Proyek selesai lebih cepat dari jadwal dengan anggaran yang tepat dan terkendali."
+  },
+  {
+    "id": "proyek-04",
+    "code": "PROYEK 04",
+    "title": "Renovasi Rumah Tinggal 2 Lantai",
+    "category": "Renovasi",
+    "location": "Tangerang Selatan",
+    "area": "130 m²",
+    "year": "2023",
+    "image": "/assets/aistudio/Project_Portofolio_page-0010_ae50de89.jpg",
+    "summary": "Pekerjaan renovasi menyeluruh dan peremajaan fasad rumah tinggal 2 lantai untuk perorangan.",
+    "role": "Mengelola proyek dan tim mulai dari penguatan struktur hingga penyelesaian akhir agar sesuai dengan desain arsitektur.",
+    "scope": [
+      "Penguatan struktur bangunan dan penataan ulang tata ruang dalam",
+      "Peremajaan fasad modern dengan aksen batu alam dan kusen aluminium",
+      "Pengawasan mutu pekerjaan finishing hingga tahap pemeliharaan"
+    ],
+    "result": "Selesai dengan feedback positif dari klien terkait efisiensi waktu dan kualitas bangunan."
+  }
+]
