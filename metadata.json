@@ -1,0 +1,8 @@
+{
+  "name": "Saiful - Edo Design & Build",
+  "description": "Saiful - Edo Design & Build menawarkan layanan desain arsitektur terintegrasi, estimasi anggaran, dan konstruksi bangunan residensial maupun komersial. Dipimpin oleh Saiful Amin, ST (Arsitek) dan Edi Widodo, ST (Teknik Sipil) dengan pengalaman lebih dari 8 tahun.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
